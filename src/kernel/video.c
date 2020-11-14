@@ -1,66 +1,82 @@
 #include "video.h"
 
-void InitSTDOUT(PSTDOUT sStdout)
+void InitSTDOUT(void)
 {
-    sStdout->base = (char*)0xb8000; // Starting address for video memory
-    sStdout->max_x = (80*2); // 80 columns * 2 bytes per char
-    sStdout->max_y = 25; // 25 rows
-    sStdout->cur_x = 0;
-    sStdout->cur_y = 0;
+    kstdout->base = (char*)0xb8000; // Starting address for video memory
+    kstdout->max_x = (80*2); // 80 columns * 2 bytes per char
+    kstdout->max_y = 25; // 25 rows
+    kstdout->cur_x = 0;
+    kstdout->cur_y = 0;
+    kstdout->attrib = 0x0F;
 }
 
-int KeClearScreen(PSTDOUT vidptr, BYTE attrib)
+int KeClearScreen(BYTE attrib)
 {   
     /* this loops clears the screen
 	* there are 25 lines each of 80 columns; each element takes 2 bytes */
-	while (vidptr->cur_y < vidptr->max_y)
+	while (kstdout->cur_y < kstdout->max_y)
     {
-        while (vidptr->cur_x < vidptr->max_x) 
+        while (kstdout->cur_x < kstdout->max_x) 
         {
-            int pos = (vidptr->cur_x + (vidptr->cur_y * vidptr->max_x));
+            int pos = (kstdout->cur_x + (kstdout->cur_y * kstdout->max_x));
 		    
             /* blank character */
-		    vidptr->base[pos] = ' ';
+		    kstdout->base[pos] = ' ';
 		    
             /* attribute-byte */
-		    vidptr->base[pos + 1] = attrib; 		
+		    kstdout->base[pos + 1] = attrib; 		
 		    
-            vidptr->cur_x = vidptr->cur_x + 2;
+            kstdout->cur_x = kstdout->cur_x + 2;
 	    }
-        vidptr->cur_x = 0;
-        vidptr->cur_y = vidptr->cur_y + 1;
+        kstdout->cur_x = 0;
+        kstdout->cur_y = kstdout->cur_y + 1;
     }
         
-    vidptr->cur_x = 0;
-    vidptr->cur_y = 0;
+    kstdout->cur_x = 0;
+    kstdout->cur_y = 0;
 
     return 0;
 }
 
-int KePrintK(PSTDOUT vidptr, const char* str, BYTE attrib)
+int KePrintKEx(const char* str, BYTE attrib)
 {    
     unsigned int j = 0;
 
     /* this loop writes the string to video memory */
     while (str[j] != '\0') 
     { 
-        // New line if out of line space
-        if (vidptr->cur_x >= vidptr->max_x)
+        // New line
+        if (kstdout->cur_x >= kstdout->max_x)
         {
-            vidptr->cur_x = 0;
-            vidptr->cur_y = vidptr->cur_y + 1;
+            kstdout->cur_x = 0;
+            kstdout->cur_y = kstdout->cur_y + 1;
+        }
+        else if (str[j] == '\n')
+        {
+            kstdout->cur_x = 0;
+            kstdout->cur_y = kstdout->cur_y + 1;
+            ++j;
+            continue;
         }
 
-		int pos = (vidptr->cur_x + (vidptr->cur_y * vidptr->max_x));
+		int pos = (kstdout->cur_x + (kstdout->cur_y * kstdout->max_x));
 
         /* the character's ascii */
-		vidptr->base[pos] = str[j];
+		kstdout->base[pos] = str[j];
 		/* attribute-byte */
-	    vidptr->base[pos+1] = attrib;
+	    kstdout->base[pos+1] = attrib;
 		    
         ++j;
-		vidptr->cur_x = vidptr->cur_x + 2;
+		kstdout->cur_x = kstdout->cur_x + 2;
 	}
     
     return 0;
+}
+
+int KePrintK(const char* str)
+{
+    int iResult = 0;
+
+    iResult = KePrintKEx(str, kstdout->attrib);
+    return iResult;
 }

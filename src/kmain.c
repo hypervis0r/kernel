@@ -1,14 +1,20 @@
 #include "common.h"
 #include "kernel/video.h"
+#include "kernel/interrupt.h"
 
 void kmain(void)
 {
-    PSTDOUT vidptr = NULL;
-
-    InitSTDOUT(vidptr);
-
-    KeClearScreen(vidptr, (BYTE)0x4F);
-    KePrintK(vidptr, "TEST", (BYTE)0x4F);
+    InitSTDOUT();
     
+    kstdout->attrib = 0x4F;
+
+    KeClearScreen(kstdout->attrib);
+    KePrintK("TEST Enter keyboard input:\n");
+    
+    idt_init();
+	kb_init();
+
+    while(1);
+
     return;
 }

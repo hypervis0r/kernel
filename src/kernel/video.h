@@ -3,17 +3,20 @@
 
 #include "../common.h"
 
-typedef struct _STDOUT {
+typedef struct _KSTDOUT {
     char* base;
     int max_x;
     int max_y;
     int cur_x;
     int cur_y;
-} STDOUT, * PSTDOUT;
+    BYTE attrib;
+} KSTDOUT, * PKSTDOUT;
 
-void InitSTDOUT(PSTDOUT sStdout);
+KSTDOUT kstdout[sizeof(KSTDOUT)];
 
-int KeClearScreen(PSTDOUT vidptr, BYTE attrib);
-int KePrintK(PSTDOUT vidptr, const char* str, BYTE attrib);
+void InitSTDOUT(void);
+int KeClearScreen(BYTE attrib);
+int KePrintKEx(const char* str, BYTE attrib);
+int KePrintK(const char* str);
 
 #endif
