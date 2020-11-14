@@ -1,5 +1,5 @@
 #include "common.h"
-#include "kernel/video.h"
+#include "kernel/io/video.h"
 #include "kernel/interrupt.h"
 
 void kmain(void)

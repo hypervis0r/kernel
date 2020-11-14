@@ -6,7 +6,7 @@ ASMCFLAGS = -f elf32
 all: clean link 
 	@echo "Done!"
 
-link: basm.o kmain.o video.o keyboard_map.o interrupt.o interruptasm.o
+link: basm.o kmain.o video.o keyboard.o interrupt.o interruptasm.o
 	ld -m elf_i386 -T link.ld -o kernel.bin $?
 
 basm.o: src/kernel/boot.asm
@@ -18,13 +18,13 @@ interruptasm.o: src/kernel/interrupt.asm
 interrupt.o: src/kernel/interrupt.c 
 	$(CC) $(CFLAGS) -c $<
 
-keyboard_map.o: src/kernel/keyboard_map.c
+keyboard.o: src/kernel/io/keyboard.c
 	$(CC) $(CFLAGS) -c $<
 
 kmain.o: src/kmain.c 
 	$(CC) $(CFLAGS) -c $<
 
-video.o: src/kernel/video.c
+video.o: src/kernel/io/video.c
 	$(CC) $(CFLAGS) -c $<
 
 clean:
