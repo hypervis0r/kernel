@@ -1,6 +1,6 @@
 #include "video.h"
 
-void InitSTDOUT(void)
+void kstdout_init(void)
 {
     kstdout->base = (char*)0xb8000; // Starting address for video memory
     kstdout->max_x = (80*2); // 80 columns * 2 bytes per char

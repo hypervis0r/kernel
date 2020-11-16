@@ -12,9 +12,9 @@ typedef struct _KSTDOUT {
     BYTE attrib;
 } KSTDOUT, * PKSTDOUT;
 
-KSTDOUT kstdout[sizeof(KSTDOUT)];
+PKSTDOUT kstdout;
 
-void InitSTDOUT(void);
+void kstdout_init(void);
 int KeClearScreen(BYTE attrib);
 int KePrintKEx(
         const char* str, 

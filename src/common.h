@@ -12,4 +12,6 @@ typedef unsigned long UINT32;
 
 typedef unsigned long DWORD;
 
+typedef DWORD SIZE_T;
+
 #endif

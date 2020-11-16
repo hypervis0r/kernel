@@ -1,5 +1,13 @@
 #include "interrupt.h"
 
+void init_idt_desc(UINT16 select, UINT32 offset, UINT32 type, PIDT_ENTRY desc)
+{
+    desc->offset_lowerbits = (offset & 0xffff);
+    desc->selector = select;
+    desc->type_attr = type;
+    desc->offset_higherbits = (offset & 0xffff0000) >> 16;
+}
+
 void idt_init(void)
 {
 	unsigned long keyboard_address;
@@ -8,17 +16,14 @@ void idt_init(void)
 
 	/* populate IDT entry of keyboard's interrupt */
 	keyboard_address = (unsigned long)keyboard_handler;
-	IDT[0x21].offset_lowerbits = keyboard_address & 0xffff;
-	IDT[0x21].selector = KERNEL_CODE_SEGMENT_OFFSET;
-	IDT[0x21].zero = 0;
-	IDT[0x21].type_attr = INTERRUPT_GATE;
-	IDT[0x21].offset_higherbits = (keyboard_address & 0xffff0000) >> 16;
-
-	/*     Ports
-	*	 PIC1	PIC2
-	*Command 0x20	0xA0
-	*Data	 0x21	0xA1
-	*/
+	init_idt_desc(KERNEL_CODE_SEGMENT_OFFSET, keyboard_address, INTERRUPT_GATE, &IDT[0x21]);
+    
+    /*     Ports
+     * * * * * * * * * *     
+	 *	       PIC1	PIC2
+	 * Command 0x20	0xA0
+	 * Data	   0x21	0xA1
+	 */
 
 	/* ICW1 - begin initialization */
 	write_port(0x20 , 0x11);
@@ -56,11 +61,11 @@ void idt_init(void)
 void kb_enable(void)
 {
 	/* 0xFD is 11111101 - enables only IRQ1 (keyboard) */
-	write_port(0x21, 0xFD);
+    write_port(0x21, 0xFD);
 }
 
-void kb_disable(void)
+void mask_disable(void)
 {
-    /* 0xFC is 11111100 - disables only IRQ1 (keyboard) */
-    write_port(0x21, 0xFC);
+    /* 0xFF is 11111111 - disables all IRQ lines (keyboard) */
+    write_port(0x21, 0xFF);
 }

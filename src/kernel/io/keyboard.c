@@ -1,5 +1,7 @@
 #include "keyboard.h"
 
+BYTE keyboard_status = NULL;
+
 /* The following array is taken from 
     http://www.osdever.net/bkerndev/Docs/keyboard.htm
    All credits where due
@@ -46,21 +48,29 @@ BYTE keyboard_map[128] = {
 
 void keyboard_handler_main(void)
 {
-	BYTE status;
 	unsigned char keycode;
 
 	/* write EOI */
 	write_port(0x20, 0x20);
 
-	status = read_port(KEYBOARD_STATUS_PORT);
+	keyboard_status = read_port(KEYBOARD_STATUS_PORT);
 	/* Lowest bit of status will be set if buffer is not empty */
-	if (status & 0x01) {
+	if (keyboard_status & 0x01) {
 		keycode = read_port(KEYBOARD_DATA_PORT);
 		
         if(keycode < 0)
 			return;
 
+        if(keycode == ENTER_KEY_CODE)
+        {
+            KePrintK("\nEnter key pressed\n");
+            keyboard_status = keycode;
+            return;
+        }
+
         const char send[2] = {(char)keyboard_map[(int)keycode], 0};
-        KePrintK(send);    
+        KePrintK(send);
+
+        strcat(kstdin.buffer, send);
     }    
 }
