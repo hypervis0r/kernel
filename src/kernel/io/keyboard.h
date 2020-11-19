@@ -11,8 +11,6 @@
 #define KEYBOARD_STATUS_PORT 0x64
 #define ENTER_KEY_CODE 0x1C
 
-extern BYTE keyboard_map[128];
-
 void keyboard_handler_main(void);
 unsigned char KeWaitForKeyPress(void);
 char KeGetLastKeyPressed(unsigned char src);
