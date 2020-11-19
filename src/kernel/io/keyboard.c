@@ -1,11 +1,15 @@
 #include "keyboard.h"
 
-BYTE keyboard_status = NULL;
+static unsigned char keycode = NULL;
 
 /* The following array is taken from 
     http://www.osdever.net/bkerndev/Docs/keyboard.htm
    All credits where due
 */
+
+/* Keyboard map, take scancode and grab the 
+ * value at the index.
+ * TODO: figure out a way to interchange this */
 BYTE keyboard_map[128] = {
     0,  27, 
     '1', '2', '3', '4', '5', '6', '7', '8',	'9', '0', 
@@ -46,31 +50,63 @@ BYTE keyboard_map[128] = {
     0,	/* All other keys are undefined */
 };
 
+/* Every time a key on a PS/2 keyboard is pressed,
+ * it raises IRQ1, which we handle using this function */
 void keyboard_handler_main(void)
 {
-	unsigned char keycode;
+    BYTE keyboard_status = NULL;
+    BYTE scancode = NULL;
 
-	/* write EOI */
+    /* write EOI */
 	write_port(0x20, 0x20);
 
 	keyboard_status = read_port(KEYBOARD_STATUS_PORT);
 	/* Lowest bit of status will be set if buffer is not empty */
-	if (keyboard_status & 0x01) {
-		keycode = read_port(KEYBOARD_DATA_PORT);
+	if (keyboard_status & 0x01) 
+    {
+		scancode = read_port(KEYBOARD_DATA_PORT);
 		
-        if(keycode < 0)
-			return;
+        if(scancode < 0)
+            keycode = NULL;
 
-        if(keycode == ENTER_KEY_CODE)
-        {
-            KePrintK("\nEnter key pressed\n");
-            keyboard_status = keycode;
-            return;
-        }
-
-        const char send[2] = {(char)keyboard_map[(int)keycode], 0};
-        KePrintK(send);
-
-        strcat(kstdin.buffer, send);
+        if((scancode & 128) == 128)
+            keycode = NULL; // Released // TODO: Idk what to do here yet, so :/
+        else
+            keycode = scancode; // Pressed
     }    
+}
+
+/* Blocks program runtime until a key is pressed.
+ * IDK if I should set keycode to NULL after we get 
+ * input, so I'll just have to figure that out l8r */
+unsigned char KeWaitForKeyPress(void)
+{
+    while(TRUE)
+    {
+        if (keycode != NULL)
+            return keycode;
+    }
+}
+
+char KeGetLastKeyPressed(unsigned char src)
+{
+    BYTE key_pressed = keyboard_map[src];
+   
+    // Ignore this stuff, this is just debug info
+    char intstr[50];
+    itoa(key_pressed, intstr, 10);
+    KePrintK("\nkey_pressed: ");
+    KePrintK(intstr);
+
+    return key_pressed;
+}
+
+unsigned char KeGetLastKeycode(void)
+{
+    return keycode;
+}
+
+void KeSetLastKeycode(unsigned char src)
+{
+    keycode = src;
 }

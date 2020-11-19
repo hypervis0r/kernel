@@ -16,6 +16,13 @@ PKSTDOUT kstdout;
 
 void kstdout_init(void);
 int KeClearScreen(BYTE attrib);
+int KePutChar(const char chr);
+int KePutCharEx(
+        const char chr, 
+        BYTE attrib, 
+        unsigned int pos_x, 
+        unsigned int pos_y
+);
 int KePrintKEx(
         const char* str, 
         BYTE attrib, 

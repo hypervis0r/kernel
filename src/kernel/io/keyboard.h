@@ -13,8 +13,10 @@
 
 extern BYTE keyboard_map[128];
 
-BYTE keyboard_status;
-
 void keyboard_handler_main(void);
+unsigned char KeWaitForKeyPress(void);
+char KeGetLastKeyPressed(unsigned char src);
+unsigned char KeGetLastKeycode(void);
+void KeSetLastKeycode(unsigned char src);
 
 #endif
