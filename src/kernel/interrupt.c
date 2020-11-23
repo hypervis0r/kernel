@@ -1,5 +1,7 @@
 #include "interrupt.h"
 
+static UINT32 tick = 0;
+
 void init_idt_desc(UINT16 select, UINT32 offset, UINT32 type, PIDT_ENTRY desc)
 {
     desc->offset_lowerbits = (offset & 0xffff);
@@ -11,10 +13,16 @@ void init_idt_desc(UINT16 select, UINT32 offset, UINT32 type, PIDT_ENTRY desc)
 void idt_init(void)
 {
 	unsigned long keyboard_address;
-	unsigned long idt_address;
+	unsigned long pit_handler_address;
+
+    unsigned long idt_address;
 	unsigned long idt_ptr[2];
 
-	/* populate IDT entry of keyboard's interrupt */
+    /* IRQ0 - PIT Timer */
+    pit_handler_address = (unsigned long)pit_handler;
+	init_idt_desc(KERNEL_CODE_SEGMENT_OFFSET, pit_handler_address, INTERRUPT_GATE, &IDT[0x20]);
+    
+	/* IRQ1 - populate IDT entry of keyboard's interrupt */
 	keyboard_address = (unsigned long)keyboard_handler;
 	init_idt_desc(KERNEL_CODE_SEGMENT_OFFSET, keyboard_address, INTERRUPT_GATE, &IDT[0x21]);
     
@@ -68,4 +76,47 @@ void mask_disable(void)
 {
     /* 0xFF is 11111111 - disables all IRQ lines (keyboard) */
     write_port(0x21, 0xFF);
+}
+
+void pit_init(UINT32 frequency)
+{
+    write_port(0x21, 0xFE);
+
+    // The value we send to the PIT is the value to divide it's input clock
+    // (1193180 Hz) by, to get our required frequency. Important to note is
+    // that the divisor must be small enough to fit into 16-bits.
+    UINT32 divisor = 1193180 / frequency;
+
+    // Send the command byte.
+    write_port(0x43, 0x36);
+
+    // Divisor has to be sent byte-wise, so split here into upper/lower bytes.
+    BYTE lower = (BYTE)(divisor & 0xFF);
+    BYTE upper = (BYTE)((divisor>>8) & 0xFF);
+
+    // Send the frequency divisor.
+    write_port(0x40, lower);
+    write_port(0x40, upper);
+
+    tick = 0;
+}
+
+void pit_handler_main(void)
+{
+    write_port(0x20, 0x20); // EOI
+    ++tick;
+}
+
+UINT32 KeGetTickCount(void)
+{
+    return tick;
+}
+
+void KeSleep(UINT32 ms)
+{
+    UINT32 cur_tick = KeGetTickCount();
+    while(cur_tick <= ms)
+    {
+        cur_tick = KeGetTickCount();
+    }
 }

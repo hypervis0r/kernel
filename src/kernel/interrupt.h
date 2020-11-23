@@ -29,14 +29,19 @@ typedef struct _IDT_ENTRY
 IDT_ENTRY IDT[IDT_SIZE];
 
 extern void keyboard_handler(void);
+extern void pit_handler(void);
+
 extern BYTE read_port(UINT16 port);
 extern void write_port(UINT16 port, BYTE data);
 extern void load_idt(unsigned long *idt_ptr);
 
 void idt_init(void);
-void IRQ_set_mask(BYTE IRQline);
-void IRQ_clear_mask(BYTE IRQline);
+void pit_init(UINT32 frequency);
+UINT32 KeGetTickCount(void);
+void KeSleep(UINT32 ms);
 void kb_enable(void);
 void mask_disable(void);
+
+void pit_handler_main(void);
 
 #endif

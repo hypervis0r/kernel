@@ -1,7 +1,5 @@
 ;; Port I/O code written in asm
 
-extern keyboard_handler_main
-
 global read_port
 read_port: ; Read data from I/O port
 	mov edx, [esp + 4]
@@ -22,7 +20,18 @@ load_idt:
 	sti 				;turn on interrupts
 	ret
 
+extern keyboard_handler_main
 global keyboard_handler
 keyboard_handler:
+    pushad
     call keyboard_handler_main
+    popad
+    iretd
+
+extern pit_handler_main
+global pit_handler
+pit_handler:
+    pushad
+    call pit_handler_main
+    popad
     iretd
