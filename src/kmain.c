@@ -5,12 +5,13 @@
 
 void kmain(void)
 {
-    kstdout_init();
-    kstdin_init();
-    idt_init();
-    pit_init(1000); // 1000 hz == 1ms
+    kstdout_init();     /* Initialize the stdout */
+    kstdin_init();      /* Initialize the stdin  */
+    idt_init();         /* Initialize the Interrupt Descriptor Table */
+    pit_init(1000);     /* Initialize the PIT timer to tick every 1000 hz / 1ms */
 
-    kstdout->attrib = 0x4F;
+    /* TODO: Add bit manipulation and defines for better readability */
+    kstdout->attrib = 0x4F; /* Set background color to red, and foreground to white */
 
     KePrintK("Waiting for 2 seconds...\n");
     KeSleep(2000); /* Sleep for 2 seconds (to demonstrate PIT timer) */
@@ -18,12 +19,13 @@ void kmain(void)
     KeClearScreen(kstdout->attrib);
     KePrintK("TEST Enter keyboard input:\n");
 
+    /* Get input from the PS/2 keyboard and display on screen */
     char str[50];
     KeGets(str);
     KePrintK("\n");
     KePrintK(str);
         
-    while(1);
+    while(1); /* go into infinite looooooop */
 
     return;
 }
