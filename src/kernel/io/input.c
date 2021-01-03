@@ -17,12 +17,12 @@ int KeGets(char* buf)
 
     // Enable keyboard
     kb_enable();
-    
+
     while(TRUE)
     {
         keycode = KeWaitForKeyPress();
         key_pressed = KeGetLastKeyPressed(keycode);
-        
+
         if (key_pressed == '\n')
             break;
         else
