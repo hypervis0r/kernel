@@ -4,10 +4,10 @@ static UINT32 tick = 0;
 
 void init_idt_desc(UINT16 select, UINT32 offset, UINT32 type, PIDT_ENTRY desc)
 {
-    desc->offset_lowerbits = (offset & 0xffff);
-    desc->selector = select;
-    desc->type_attr = type;
-    desc->offset_higherbits = (offset & 0xffff0000) >> 16;
+	desc->offset_lowerbits = (offset & 0xffff);
+	desc->selector = select;
+	desc->type_attr = type;
+	desc->offset_higherbits = (offset & 0xffff0000) >> 16;
 }
 
 void idt_init(void)
