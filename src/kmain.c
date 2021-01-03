@@ -12,7 +12,8 @@ void kmain(void)
 
     kstdout->attrib = 0x4F;
 
-    KeSleep(5000);
+    KePrintK("Waiting for 2 seconds...\n");
+    KeSleep(2000); /* Sleep for 2 seconds (to demonstrate PIT timer) */
 
     KeClearScreen(kstdout->attrib);
     KePrintK("TEST Enter keyboard input:\n");
