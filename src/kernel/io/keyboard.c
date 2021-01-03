@@ -2,10 +2,6 @@
 
 static unsigned char keycode = NULL;
 
-
-
-
-
 /* Every time a key on a PS/2 keyboard is pressed,
  * it raises IRQ1, which we handle using this function */
 void keyboard_handler_main(void)
