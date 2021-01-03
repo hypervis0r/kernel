@@ -17,10 +17,10 @@ void kmain(void)
     KeClearScreen(kstdout->attrib);
     KePrintK("TEST Enter keyboard input:\n");
 
-    /* char str[50]; */
-    /* KeGets(str); */
-    /* KePrintK("\n"); */
-    /* KePrintK(str); */
+    char str[50];
+    KeGets(str);
+    KePrintK("\n");
+    KePrintK(str);
         
     while(1);
 
